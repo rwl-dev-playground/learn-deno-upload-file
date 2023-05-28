@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "dev": "deno task dev:www & deno task dev:api",
+    "dev:www": "deno run --allow-net --watch www/main.tsx",
+    "dev:api": "deno run --allow-net --unstable --watch api/main.ts"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.175.0/",
+    "hono/": "https://deno.land/x/hono@v3.2.2/"
+  },
+  "fmt": {
+    "exclude": [
+      "LICENSE",
+      "README.md"
+    ]
+  }
+}

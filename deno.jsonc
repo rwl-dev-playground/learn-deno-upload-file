@@ -6,7 +6,8 @@
   },
   "imports": {
     "std/": "https://deno.land/std@0.175.0/",
-    "hono/": "https://deno.land/x/hono@v3.2.2/"
+    "hono/": "https://deno.land/x/hono@v3.2.2/",
+    "kv": "https://deno.land/x/kv_toolbox@0.0.2/blob.ts"
   },
   "fmt": {
     "exclude": [

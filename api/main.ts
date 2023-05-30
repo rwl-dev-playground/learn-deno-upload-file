@@ -2,6 +2,7 @@ import { Hono, HTTPException } from "hono/mod.ts";
 import { BodyData } from "hono/utils/body.ts";
 import { serve } from "std/http/mod.ts";
 import { Status } from "std/http/http_status.ts";
+import { get, set } from "kv";
 
 const app = new Hono();
 const kv = await Deno.openKv();
@@ -20,9 +21,9 @@ interface JsonResponse {
 app.get("/:slug", async (ctx) => {
   const slug = ctx.req.param("slug");
   // TODO: 取得するものがないので試せてない
-  const image = await kv.get<ArrayBuffer>([slug]);
+  const image = await get(kv, [slug]);
 
-  return ctx.body(image.value);
+  return ctx.body(image);
 });
 
 app.post("/", async (ctx) => {
@@ -42,8 +43,8 @@ app.post("/", async (ctx) => {
     },
   });
 
-  // TODO: 65KBの画像は多分そうそうないので、Deno KVに画像を入れるのは無理筋
-  kv.set([body.image.name], await body.image.arrayBuffer());
+  // TODO: 650KBの画像は多分そうそうないので、Deno KVに画像を入れるのは無理筋
+  set(kv, [body.image.name], await body.image.arrayBuffer());
 
   return ctx.body(await body.image.arrayBuffer());
 });

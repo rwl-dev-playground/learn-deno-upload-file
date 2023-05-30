@@ -42,13 +42,6 @@ app.post("/", async (ctx) => {
     },
   });
 
-  if (body.image.size > 65536) {
-    throw new HTTPException(Status.RequestEntityTooLarge, {
-      message:
-        "ファイルの容量が65KBを超えています。65KB未満に圧縮してください。",
-    });
-  }
-
   // TODO: 65KBの画像は多分そうそうないので、Deno KVに画像を入れるのは無理筋
   kv.set([body.image.name], await body.image.arrayBuffer());
 

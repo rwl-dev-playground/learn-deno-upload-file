@@ -20,7 +20,6 @@ interface JsonResponse {
 
 app.get("/:slug", async (ctx) => {
   const slug = ctx.req.param("slug");
-  // TODO: 取得するものがないので試せてない
   const image = await get(kv, [slug]);
 
   return ctx.body(image);
@@ -43,7 +42,6 @@ app.post("/", async (ctx) => {
     },
   });
 
-  // TODO: 650KBの画像は多分そうそうないので、Deno KVに画像を入れるのは無理筋
   set(kv, [body.image.name], await body.image.arrayBuffer());
 
   return ctx.body(await body.image.arrayBuffer());

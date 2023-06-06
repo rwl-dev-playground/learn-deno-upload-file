@@ -2,10 +2,11 @@ import { Hono, HTTPException } from "hono/mod.ts";
 import { BodyData } from "hono/utils/body.ts";
 import { serve } from "std/http/mod.ts";
 import { Status } from "std/http/http_status.ts";
-import { get, set } from "kv";
+import { extname } from "std/path/mod.ts";
+import { contentType } from "std/media_types/mod.ts";
+import "std/dotenv/load.ts";
 
 const app = new Hono();
-const kv = await Deno.openKv();
 
 interface BodyParams extends BodyData {
   title: string;
@@ -18,11 +19,28 @@ interface JsonResponse {
   message: string;
 }
 
-app.get("/:slug", async (ctx) => {
+app.get("/:slug{.+$}", async (ctx) => {
   const slug = ctx.req.param("slug");
-  const image = await get(kv, [slug]);
 
-  return ctx.body(image);
+  const response = await fetch(
+    `https://storage.googleapis.com/storage/v1/b/${
+      Deno.env.get("PROJECT_ID")
+    }/o/${encodeURIComponent(slug)}?alt=media`,
+    {
+      headers: {
+        // TODO: [Google Developers OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)でJSON APIのアクセストークンが発行できるが、かなり有限
+        "Authorization": `Bearer ${Deno.env.get("ACCESS_TOKEN")}`,
+      },
+    },
+  );
+
+  if (response.status !== Status.OK) {
+    throw new HTTPException(response.status, { message: response.statusText });
+  }
+
+  return ctx.body(await response.arrayBuffer(), Status.OK, {
+    "Content-Type": contentType(extname(slug)) || contentType(".txt"),
+  });
 });
 
 app.post("/", async (ctx) => {
@@ -42,7 +60,7 @@ app.post("/", async (ctx) => {
     },
   });
 
-  set(kv, [body.image.name], await body.image.arrayBuffer());
+  // TODO: Google Cloud StorageのJSON APIだとアクセストークンの期限が短いので、POST実装の確認は一旦しない
 
   return ctx.body(await body.image.arrayBuffer());
 });
@@ -53,14 +71,14 @@ app.onError((err, ctx) => {
       status: err.status,
       detail: "100000",
       message: err.message,
-    });
+    }, err.status);
   }
   return ctx.json<JsonResponse>({
     status: Status.InternalServerError,
     detail: "999999",
     message:
       "予期しないエラーが発生しました。サーバー管理者に問い合わせてください。",
-  });
+  }, Status.InternalServerError);
 });
 
 serve(app.fetch, { port: 8080 });

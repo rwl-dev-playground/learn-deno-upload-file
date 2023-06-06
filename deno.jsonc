@@ -2,12 +2,11 @@
   "tasks": {
     "dev": "deno task dev:www & deno task dev:api",
     "dev:www": "deno run --allow-net --watch www/main.tsx",
-    "dev:api": "deno run --allow-net --unstable --watch api/main.ts"
+    "dev:api": "deno run --allow-net --allow-read=.env,.env.defaults,.env.example --allow-env --unstable --watch api/main.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.175.0/",
-    "hono/": "https://deno.land/x/hono@v3.2.2/",
-    "kv": "https://deno.land/x/kv_toolbox@0.0.2/blob.ts"
+    "std/": "https://deno.land/std@0.190.0/",
+    "hono/": "https://deno.land/x/hono@v3.2.2/"
   },
   "fmt": {
     "exclude": [

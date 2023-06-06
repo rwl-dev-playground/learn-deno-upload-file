@@ -32,6 +32,7 @@ app.get("/", (ctx) => {
         <input type="file" name="image" id="" />
         <button type="submit">送信</button>
       </form>
+      <img src="http://localhost:8080/test/pngsample.png" alt="pngsample" />
     </Layout>,
   );
 });
